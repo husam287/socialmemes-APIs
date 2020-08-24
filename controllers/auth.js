@@ -2,6 +2,8 @@ const User = require('../models/users');
 const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator/check');
 const jwt = require('jsonwebtoken');
+const deleteFile=require('../util/deleteFile');
+const resize=require('../util/resizeFile');
 
 
 //########## Sign up ##########
@@ -137,21 +139,38 @@ exports.getAllUsers = (req, res, next) => {
 //########## To edit specific user ##########
 exports.editUser = (req, res, next) => {
     const name = req.body.name;
-    const image = req.body.image;
+    const image = req.file;
     const bio = req.body.bio;
+    
+    if(!name&&!image&&!bio){
+        const error =new Error('you must edit one thing at least');
+        error.statusCode=400;
+        throw error;
+    }
 
     //##### get the user for old data #####
     let user;
     User.findById(req.userId)
         .then(userDoc => {
             user = userDoc;
+            let imageUrl;
+            //##### successfully editing #####
+            if(image){
+                imageUrl=image.path+'.jpeg';
+                resize(image.path);
+            }
+
+            
             //##### successfully editing #####
             return User.findByIdAndUpdate({ _id: req.userId }, {
                 name: name ? name : user.name,
-                image: image ? image : user.image,     //if empty body assign old value
+                image: image ? imageUrl : user.image,     //if empty body assign old value
                 bio: bio ? bio : user.bio
             })
             .then(result => {
+                if(result.image!=='/images/unknown.png'){
+                    deleteFile(result.image);
+                }
                 res.status(201).json({ message: 'Edited successfully!!' })
             })
             .catch(err => {

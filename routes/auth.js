@@ -6,7 +6,7 @@ const User=require('../models/users');
 
 const isAuth=require('../middlewares/isAuth');
 const isSameUser=require('../middlewares/isSameUser');
-
+const upload=require('../middlewares/upload');
 //email,password,name to sign up
 router.post('/signup',[
     //Email validation
@@ -42,7 +42,7 @@ router.get('/:userId/get',isAuth,authController.getUserInfo) //{} => {name,email
 
 router.get('/getAll',isAuth,authController.getAllUsers) //{} => [_id]
 
-router.put('/:userId/edit',isAuth,isSameUser,authController.editUser) // {name?,image?,bio?} => {message}
+router.put('/:userId/edit',isAuth,isSameUser,upload("profilePic"),authController.editUser) // {name?,image?,bio?} => {message}
 
 router.put('/:userId/changePassword',[
     body('oldPassword')
