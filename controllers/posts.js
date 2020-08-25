@@ -2,9 +2,11 @@ const Post = require('../models/posts');
 const User = require('../models/users');
 const resizeFile = require('../util/resizeFile');
 const deleteFile = require('../util/deleteFile');
-
+const errorFunction=require('../util/errorFunction');
 
 //########## add post ##########
+
+
 exports.addPost = (req, res, next) => {
     const content = req.body.content;
     const image = req.file;
@@ -56,8 +58,16 @@ exports.addPost = (req, res, next) => {
 
 
 //########## To get all posts ##########
+
+
 exports.getAll = (req, res, next) => {
     Post.find()
+    .select('-__v')
+    .populate({
+        path:'creator likes comments.commentOwner',
+        select:'_id name image', 
+    })
+    .exec()
         .then(posts => {
             //##### if there's no posts at all #####
             if (!posts) {
@@ -77,9 +87,13 @@ exports.getAll = (req, res, next) => {
 
 
 //########## To get specific post ##########
+
+
 exports.get = (req, res, next) => {
     const postId = req.params.postId;
     Post.findById(postId)
+    .select('-__v')
+    .populate('likes comments.commentOwner creator','_id name image')
         .then(post => {
             //##### wrong id #####
             if (!post) {
@@ -99,15 +113,15 @@ exports.get = (req, res, next) => {
 
 
 //########## get user posts ##########
+
+
 exports.getUserPosts = (req, res, next) => {
     const userId = req.params.userId;
     Post.find({ creator: userId })
         .then(posts => {
             //##### user has no posts yet #####
             if (!posts) {
-                const error = new Error('this user has no posts yet');
-                error.statusCode = 404;
-                throw error;
+                throw errorFunction('this user has no posts yet',404);
             }
             else {
                 res.status(200).json(posts);
@@ -120,6 +134,8 @@ exports.getUserPosts = (req, res, next) => {
 
 
 //########## get user posts ##########
+
+
 exports.edit = (req, res, next) => {
     const postId = req.query.postId; //from query params
     const content = req.body.content;
@@ -170,6 +186,8 @@ exports.edit = (req, res, next) => {
 
 
 //########## delete post ##########
+
+
 exports.delete=(req,res,next)=>{
     const postId=req.query.postId;
     Post.findByIdAndRemove(postId)
@@ -198,3 +216,68 @@ exports.delete=(req,res,next)=>{
     })
 }
 
+
+//########## comment in post ##########
+
+
+exports.comment=(req,res,next)=>{
+    const postId=req.params.postId;
+    const commentContent=req.body.commentContent;
+
+    //##### the comment #####
+    const comment ={
+        commentOwner:req.userId,
+        commentContent:commentContent
+    }
+    Post.findById(postId)
+    .then(postDoc=>{
+        //##### No post by this id #####
+        if(!postDoc){
+            const error=new Error('No post data')
+            error.statusCode(404);
+            throw error;
+        }
+        //##### edits comments array #####
+        postDoc.comments.push(comment);
+        return postDoc.save();
+    })
+    .then(result=>{
+        res.status(200).json({message:'Comment added successfully'})
+    })
+    .catch(err=>{
+        next(err);
+    })
+}
+
+
+//########## like post ##########
+
+
+exports.like=(req,res,next)=>{
+    const postId=req.params.postId;
+    Post.findById(postId)
+    .then(postDoc=>{
+        //##### if no data #####
+        if(!postDoc){
+            throw errorFunction("There's no post by this id",404);
+        }
+        //##### if already liked #####
+        const likes=postDoc.likes.map(i=>{
+            return i.toString();
+        })
+
+        if(likes.indexOf(req.userId.toString())>=0){
+            throw errorFunction("You're already like this post",400);
+        }
+
+        //##### edit likes array #####
+        postDoc.likes.push(req.userId);
+        return postDoc.save();
+    })
+    .then(result=>{
+        res.status(200).json({message:'Liked successfully!'});
+    })
+    .catch(err=>{
+        next(err);
+    })
+}

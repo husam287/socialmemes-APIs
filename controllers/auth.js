@@ -7,6 +7,8 @@ const resize=require('../util/resizeFile');
 
 
 //########## Sign up ##########
+
+
 exports.signup = (req, res, next) => {
     //validation errors
     const errors = validationResult(req);
@@ -46,6 +48,8 @@ exports.signup = (req, res, next) => {
 
 
 //########## log in and get token , user id, and expire Date ##########
+
+
 exports.login = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -86,12 +90,24 @@ exports.login = (req, res, next) => {
 
 }
 
+
 //########## To get user by sent id in params ##########
+
+
 exports.getUserInfo = (req, res, next) => {
     const userId = req.params.userId;
     let fetchedUser = '';
 
     User.findById(userId)
+    .select('-__v -email -password')
+    .populate({
+        path:'posts',
+        populate:{
+            path:'creator comments.commentOwner likes',
+            select:'_id name image'
+        }
+        
+    })
         //##### reject if there is no user like this #####
         .then(user => {
             if (!user) {
@@ -99,20 +115,19 @@ exports.getUserInfo = (req, res, next) => {
                 error.statusCode = 404;
                 throw error;
             }
-
+            //user.posts=user.populated('posts.creator');
             //##### Removing password and userId #####
-            fetchedUser = user.toObject();
-            fetchedUser.password = undefined;
-            fetchedUser._id = undefined;
-            fetchedUser.__v = undefined
-            res.status(200).json(fetchedUser);
+            res.status(200).json(user);
         })
         .catch(err => {
             next(err)
         })
 }
 
+
 //########## To get all users id in array ##########
+
+
 exports.getAllUsers = (req, res, next) => {
     User.find()
         .then(usersDoc => {
@@ -124,11 +139,11 @@ exports.getAllUsers = (req, res, next) => {
             }
 
             //##### Extract ids #####
-            usersDoc = usersDoc.map((i) => {
-                return i._id.toString();
+            const modified=usersDoc.map(i=>{
+                return {_id:i._id, name:i.name, image:i.image};
             })
-            res.status(200).json(usersDoc);
-
+            
+            res.status(200).json(modified);
         })
         .catch(err => {
             next(err)
@@ -137,6 +152,8 @@ exports.getAllUsers = (req, res, next) => {
 
 
 //########## To edit specific user ##########
+
+
 exports.editUser = (req, res, next) => {
     const name = req.body.name;
     const image = req.file;
@@ -184,6 +201,9 @@ exports.editUser = (req, res, next) => {
 }
 
 
+//########## change password ##########
+
+
 exports.changePassword=(req,res,next)=>{
     const errors=validationResult(req)
     if(!errors.isEmpty()){
@@ -194,7 +214,6 @@ exports.changePassword=(req,res,next)=>{
     }
     const oldPassword = req.body.oldPassword;
     const newPassword = req.body.newPassword;
-
 
     //##### find user that login #####
     User.findById(req.userId)

@@ -11,6 +11,10 @@ router.get('/getAll', isAuth, postsController.getAll) //{ }=>{[posts]}
 
 router.get('/:postId/get', isAuth, postsController.get) // {}=>{post}
 
+router.post('/:postId/like',isAuth,postsController.like) //{}=>{message}
+
+router.post('/:postId/comment',isAuth,postsController.comment) //{commentContent}=>{message}
+
 router.get('/:userId/getAll', isAuth, postsController.getUserPosts) //{}=>{[userPosts]}
 
 router.put('/:userId/edit'/*?postId*/,

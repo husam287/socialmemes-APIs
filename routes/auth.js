@@ -40,7 +40,7 @@ router.post('/login',authController.login) //{email,password} => token,userId,ex
 
 router.get('/:userId/get',isAuth,authController.getUserInfo) //{} => {name,email,image,bio,posts:[],memes:[]}
 
-router.get('/getAll',isAuth,authController.getAllUsers) //{} => [_id]
+router.get('/getAll',isAuth,authController.getAllUsers) //{} => [{_id,name,image}]
 
 router.put('/:userId/edit',isAuth,isSameUser,upload("profilePic"),authController.editUser) // {name?,image?,bio?} => {message}
 
