@@ -13,7 +13,7 @@ exports.signup = (req, res, next) => {
     //validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error = new Error('Validation Errors');
+        const error = new Error(errors.array()[0].msg);
         error.statusCode = 400;
         error.data = errors.array();
         throw error;
