@@ -133,7 +133,7 @@ exports.getUserPosts = (req, res, next) => {
 }
 
 
-//########## get user posts ##########
+//########## edit user posts ##########
 
 
 exports.edit = (req, res, next) => {
