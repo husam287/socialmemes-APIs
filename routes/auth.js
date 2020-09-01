@@ -36,9 +36,9 @@ router.post('/signup',[
     .isEmpty()],
     authController.signup)
 
-router.post('/login',authController.login) //{email,password} => token,userId,expireDate
+router.post('/login',authController.login) //{email,password} => token,userId,expireDate:number
 
-router.get('/:userId/get',isAuth,authController.getUserInfo) //{} => {name,email,image,bio,posts:[],memes:[]}
+router.get('/:userId/get',isAuth,authController.getUserInfo) //{} => {_id,name,email,image,bio,posts:[],memes:[]}
 
 router.get('/getAll',isAuth,authController.getAllUsers) //{} => [{_id,name,image}]
 

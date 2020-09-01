@@ -81,7 +81,7 @@ exports.login = (req, res, next) => {
                 {
                     token: token,
                     userId: fetchedUser._id,
-                    expireDate: new Date(expireDate)
+                    expireDate: expireDate
                 })
         })
         .catch(err => {
