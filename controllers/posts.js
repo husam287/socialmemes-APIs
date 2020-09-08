@@ -13,7 +13,7 @@ exports.addPost = (req, res, next) => {
 
     //##### content inpput validation #####
     if (!content) {
-        const error = new Error('Edit post faild');
+        const error = new Error('Content is not send');
         error.statusCode = 400;
         throw error;
     }
@@ -224,6 +224,7 @@ exports.comment = (req, res, next) => {
     const postId = req.params.postId;
     const commentContent = req.body.commentContent;
 
+    console.log(commentContent);
     //##### the comment #####
     const comment = {
         commentOwner: req.userId,
