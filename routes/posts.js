@@ -17,15 +17,14 @@ router.post('/:postId/unlike',isAuth,postsController.unlike) //{}=>{message}
 
 router.post('/:postId/comment',isAuth,postsController.comment) //{commentContent}=>{message}
 
+router.delete('/:postId/delete',
+isAuth,postsController.delete) //{}=>{message:'post deleted successfully'}
+
 router.get('/:userId/getAll', isAuth, postsController.getUserPosts) //{}=>{[userPosts]}
 
 router.put('/:userId/edit'/*?postId*/,
     isAuth,
     isSameUser,
     upload('posts'), postsController.edit) //{content,image}=>{message:Edited successfully }
-
-router.delete('/:userId/delete'/*?postId*/,
-isAuth,
-isSameUser,postsController.delete) //{}=>{message:'post deleted successfully'}
 
 module.exports = router;

@@ -189,19 +189,29 @@ exports.edit = (req, res, next) => {
 
 
 exports.delete = (req, res, next) => {
-    const postId = req.query.postId;
-    Post.findByIdAndRemove(postId)
+    const postId = req.params.postId;
+    //##### get post #####
+    Post.findById(postId)
         .then(result => {
             if (!result) {
                 const error = new Error('post can not found');
                 error.statusCode = 404;
                 throw error;
             }
-            //##### delete image #####
-            deleteFile(result.image);
-
+            if(result.creator.toString()!==req.userId.toString()){
+                throw errorFunction("You don't have permissions",403);
+            }
+            //##### delete image if image found #####
+            if(result.image){
+                deleteFile(result.image);
+            }
+            //##### delete post from posts #####
+            return Post.findByIdAndRemove(postId);
+        })
+        .then(()=>{
             //##### search for the creator #####
             return User.findById(req.userId)
+
         })
         .then(userDoc => {
             //##### pop back this post from creator own posts #####
