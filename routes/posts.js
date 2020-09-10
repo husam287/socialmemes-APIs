@@ -22,9 +22,8 @@ isAuth,postsController.delete) //{}=>{message:'post deleted successfully'}
 
 router.get('/:userId/getAll', isAuth, postsController.getUserPosts) //{}=>{[userPosts]}
 
-router.put('/:userId/edit'/*?postId*/,
+router.put('/:postId/edit',
     isAuth,
-    isSameUser,
     upload('posts'), postsController.edit) //{content,image}=>{message:Edited successfully }
 
 module.exports = router;

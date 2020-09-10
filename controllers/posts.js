@@ -137,20 +137,29 @@ exports.getUserPosts = (req, res, next) => {
 
 
 exports.edit = (req, res, next) => {
-    const postId = req.query.postId; //from query params
+    const postId = req.params.postId;
     const content = req.body.content;
     const image = req.file;
 
     //##### content inpput validation #####
     if (!content) {
-        deleteFile(image.path);
         const error = new Error('Edit post faild');
         error.statusCode = 400;
         throw error;
     }
 
+    let editedPost;
+
     Post.findById(postId)
+        .populate({
+            path: 'creator likes comments.commentOwner',
+            select: '_id name image',
+        }).exec()
         .then(post => {
+            // ##### user Permission rejection #####
+            if (req.userId.toString() !== post.creator._id.toString()) {
+                throw errorFunction('You have no permissions', 401);
+            }
             //##### no post with this id #####
             if (!post) {
                 const error = new Error('there is any post by this id');
@@ -164,20 +173,24 @@ exports.edit = (req, res, next) => {
                 imageUrl = image.path + '.jpeg';
                 //new path after resize
                 resizeFile(image.path);
-                deleteFile(post.image);
+                if (post.image) {
+                    deleteFile(post.image);
+                }
             }
 
             //##### editing #####
             post.content = content ? content : post.content;
             post.image = image ? imageUrl : post.image;
 
+            //##### assigning the updated post #####
+            editedPost=post
 
             //##### saving #####
             return post.save()
         })
         .then(result => {
 
-            res.status(201).json({ message: 'Post edited successfully.' });
+            res.status(201).json({ message: 'Post edited successfully.', updatedPost: editedPost });
         })
         .catch(err => {
             next(err);
@@ -198,17 +211,17 @@ exports.delete = (req, res, next) => {
                 error.statusCode = 404;
                 throw error;
             }
-            if(result.creator.toString()!==req.userId.toString()){
-                throw errorFunction("You don't have permissions",403);
+            if (result.creator.toString() !== req.userId.toString()) {
+                throw errorFunction("You don't have permissions", 403);
             }
             //##### delete image if image found #####
-            if(result.image){
+            if (result.image) {
                 deleteFile(result.image);
             }
             //##### delete post from posts #####
             return Post.findByIdAndRemove(postId);
         })
-        .then(()=>{
+        .then(() => {
             //##### search for the creator #####
             return User.findById(req.userId)
 
