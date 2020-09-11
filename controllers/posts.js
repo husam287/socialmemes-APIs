@@ -118,6 +118,10 @@ exports.get = (req, res, next) => {
 exports.getUserPosts = (req, res, next) => {
     const userId = req.params.userId;
     Post.find({ creator: userId })
+    .populate({
+        path: 'creator likes comments.commentOwner',
+        select: '_id name image',
+    })
         .then(posts => {
             //##### user has no posts yet #####
             if (!posts) {
