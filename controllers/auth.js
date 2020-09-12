@@ -185,10 +185,15 @@ exports.editUser = (req, res, next) => {
                 bio: bio ? bio : user.bio
             })
             .then(result => {
-                if(result.image!=='/images/unknown.png'){
+                if(result.image!=='images/unknown.png'){
                     deleteFile(result.image);
                 }
-                res.status(201).json({ message: 'Edited successfully!!' })
+                
+                //##### getting updated user data #####
+                return User.findById(result._id);
+            })
+            .then(newUser=>{
+                res.status(201).json({ message: 'Edited successfully!!', user:newUser })
             })
             .catch(err => {
                 next(err);
