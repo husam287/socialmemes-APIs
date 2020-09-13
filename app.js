@@ -1,4 +1,4 @@
-const _DB_URL = "mongodb+srv://husam287:2871998@cluster0.r7yjj.gcp.mongodb.net/socialmemes"
+const _DB_URL = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.r7yjj.gcp.mongodb.net/${process.env.MONGO_DB}`
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -14,16 +14,18 @@ const logStreamFile=fs.createWriteStream(
   {flags:'a'}
 );
 
+const compression=require('compression');
+
 const app = express();
 
 const authRoutes = require('./routes/auth');
 const postsRoutes = require('./routes/posts');
 const memesRoutes = require('./routes/memes');
 
-
+console.log([process.env.NODE_ENV])
 app.use(helmet());
 app.use(morgan('combined',{stream:logStreamFile}) );
-
+app.use(compression());
 
 app.use(bodyParser.json());
 app.use('/images',express.static(path.join(__dirname, 'images')));
@@ -64,6 +66,6 @@ mongoose
     _DB_URL
   )
   .then(result => {
-    app.listen(8080);
+    app.listen(process.env.PORT || 8080);
   })
   .catch(err => console.log(err));
