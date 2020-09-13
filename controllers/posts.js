@@ -124,7 +124,7 @@ exports.getUserPosts = (req, res, next) => {
     })
         .then(posts => {
             //##### user has no posts yet #####
-            if (!posts) {
+            if (posts.length<=0) {
                 throw errorFunction('this user has no posts yet', 404);
             }
             else {
