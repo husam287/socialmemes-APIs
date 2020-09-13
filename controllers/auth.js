@@ -185,7 +185,7 @@ exports.editUser = (req, res, next) => {
                 bio: bio ? bio : user.bio
             })
             .then(result => {
-                if(result.image!=='images/unknown.png'){
+                if(result.image!=='images/unknown.png' && image){
                     deleteFile(result.image);
                 }
                 
