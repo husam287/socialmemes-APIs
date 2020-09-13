@@ -4,7 +4,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
+const fs=require('fs');
 
+const helmet = require('helmet');
+
+const morgan = require('morgan');
+const logStreamFile=fs.createWriteStream(
+  path.join(__dirname,'access.log'),
+  {flags:'a'}
+);
 
 const app = express();
 
@@ -12,6 +20,9 @@ const authRoutes = require('./routes/auth');
 const postsRoutes = require('./routes/posts');
 const memesRoutes = require('./routes/memes');
 
+
+app.use(helmet());
+app.use(morgan('combined',{stream:logStreamFile}) );
 
 
 app.use(bodyParser.json());
