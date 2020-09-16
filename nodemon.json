@@ -2,6 +2,9 @@
     "env":{
         "MONGO_USER":"husam287",
         "MONGO_PASSWORD":"2871998",
-        "MONGO_DB":"socialmemes"
+        "MONGO_DB":"socialmemes",
+        "AWS_ID":"AKIAUDQXC3W5PVF52V6F",
+        "AWS_SECRET":"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",
+        "AWS_BUCKETNAME":"socialmemes"
     }
 }
