@@ -160,7 +160,7 @@ exports.editUser = (req, res, next) => {
     const name = req.body.name;
     const image = req.file;
     const bio = req.body.bio;
-    let imageUrl = image.path;
+    let imageUrl =image? image.path:undefined;
     let user;
 
     if (!name && !image && !bio) {

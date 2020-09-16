@@ -6,6 +6,7 @@ const s3 = new aws.S3({
 });
 
 const upload = (req)=>{
+    if(!req.file) return;
     const numberOfName=req.file.originalname.split('.');
     const filename=req.file.originalname.split('.')[0];
     const filetype=req.file.originalname.split('.')[numberOfName.length-1];

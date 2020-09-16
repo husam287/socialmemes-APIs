@@ -4,7 +4,10 @@ const toAws=require('../util/toAws')
 
 module.exports=(req,res,next)=>{
 
-    if(!req.file) next();
+    if(!req.file) {
+        next();
+        return;
+    }
     toAws(req)
     .then(data=>{
         req.file.path=data.Location;
