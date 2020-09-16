@@ -187,7 +187,7 @@ exports.edit = (req, res, next) => {
         })
         .then(result => {
 
-            res.status(201).json({ message: 'Post edited successfully.', updatedPost: editedPost });
+            res.status(201).json({ message: 'Post edited successfullyyyyy.', updatedPost: editedPost });
         })
         .catch(err => {
             next(err);
