@@ -2,8 +2,10 @@ const User = require('../models/users');
 const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator/check');
 const jwt = require('jsonwebtoken');
-const deleteFile=require('../util/deleteFile');
-const resize=require('../util/resizeFile');
+const deleteByUrlFromAms = require('../util/deleteByUrlFromAws');
+const resize = require('../util/resizeFile');
+const toAws = require('../util/toAws');
+
 
 
 //########## Sign up ##########
@@ -99,15 +101,15 @@ exports.getUserInfo = (req, res, next) => {
     let fetchedUser = '';
 
     User.findById(userId)
-    .select('-__v -email -password')
-    .populate({
-        path:'posts',
-        populate:{
-            path:'creator comments.commentOwner likes',
-            select:'_id name image'
-        }
-        
-    })
+        .select('-__v -email -password')
+        .populate({
+            path: 'posts',
+            populate: {
+                path: 'creator comments.commentOwner likes',
+                select: '_id name image'
+            }
+
+        })
         //##### reject if there is no user like this #####
         .then(user => {
             if (!user) {
@@ -139,10 +141,10 @@ exports.getAllUsers = (req, res, next) => {
             }
 
             //##### Extract ids #####
-            const modified=usersDoc.map(i=>{
-                return {_id:i._id, name:i.name, image:i.image};
+            const modified = usersDoc.map(i => {
+                return { _id: i._id, name: i.name, image: i.image };
             })
-            
+
             res.status(200).json(modified);
         })
         .catch(err => {
@@ -158,46 +160,42 @@ exports.editUser = (req, res, next) => {
     const name = req.body.name;
     const image = req.file;
     const bio = req.body.bio;
-    
-    if(!name&&!image&&!bio){
-        const error =new Error('you must edit one thing at least');
-        error.statusCode=400;
+    let imageUrl = image.path;
+    let user;
+
+    if (!name && !image && !bio) {
+        const error = new Error('you must edit one thing at least');
+        error.statusCode = 400;
         throw error;
     }
 
+    console.log('1 ' + imageUrl)
+   
     //##### get the user for old data #####
-    let user;
     User.findById(req.userId)
         .then(userDoc => {
             user = userDoc;
-            let imageUrl;
-            //##### successfully editing #####
-            if(image){
-                imageUrl=image.path+'.jpeg';
-                resize(image.path);
-            }
 
-            
             //##### successfully editing #####
             return User.findByIdAndUpdate({ _id: req.userId }, {
                 name: name ? name : user.name,
                 image: image ? imageUrl : user.image,     //if empty body assign old value
                 bio: bio ? bio : user.bio
             })
-            .then(result => {
-                if(result.image!=='images/unknown.png' && image){
-                    deleteFile(result.image);
-                }
-                
-                //##### getting updated user data #####
-                return User.findById(result._id);
-            })
-            .then(newUser=>{
-                res.status(201).json({ message: 'Edited successfully!!', user:newUser })
-            })
-            .catch(err => {
-                next(err);
-            })
+                .then(result => {
+                    if (result.image !== 'https://socialmemes.s3.eu-central-1.amazonaws.com/unknown.png' && image) {
+                        deleteByUrlFromAms(result.image);
+                    }
+
+                    //##### getting updated user data #####
+                    return User.findById(result._id);
+                })
+                .then(newUser => {
+                    res.status(201).json({ message: 'Edited successfully!!', user: newUser })
+                })
+                .catch(err => {
+                    next(err);
+                })
         })
         .catch(err => {
             next(err);
@@ -209,9 +207,9 @@ exports.editUser = (req, res, next) => {
 //########## change password ##########
 
 
-exports.changePassword=(req,res,next)=>{
-    const errors=validationResult(req)
-    if(!errors.isEmpty()){
+exports.changePassword = (req, res, next) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
         const error = new Error('Validation Errors');
         error.statusCode = 400;
         error.data = errors.array();
@@ -222,31 +220,31 @@ exports.changePassword=(req,res,next)=>{
 
     //##### find user that login #####
     User.findById(req.userId)
-        .then(userDoc=>{
+        .then(userDoc => {
             //##### check password #####
-            return bcrypt.compare(oldPassword,userDoc.password)
+            return bcrypt.compare(oldPassword, userDoc.password)
         })
-        .then(isEqual=>{
+        .then(isEqual => {
             //##### pass not correct #####
-            if(!isEqual){
+            if (!isEqual) {
                 const error = new Error('Incorrect Password');
-                error.statusCode=403;
+                error.statusCode = 403;
                 throw error;
             }
             //##### password correct so hash it #####
-            return bcrypt.hash(newPassword,12);
+            return bcrypt.hash(newPassword, 12);
         })
-        .then(hashedPass=>{
-            return User.findByIdAndUpdate(req.userId,{password:hashedPass})
+        .then(hashedPass => {
+            return User.findByIdAndUpdate(req.userId, { password: hashedPass })
         })
-        .then(result=>{
+        .then(result => {
             //##### successfully changed #####
-            res.status(201).json({message:"Password changed successfully"});
+            res.status(201).json({ message: "Password changed successfully" });
         })
-        .catch(err=>{
+        .catch(err => {
             next(err)
         })
-        
+
 }
 
 

@@ -3,6 +3,7 @@ const User = require('../models/users');
 const resizeFile = require('../util/resizeFile');
 const deleteFile = require('../util/deleteFile');
 const errorFunction = require('../util/errorFunction');
+const removeFromAws=require('../util/deleteByUrlFromAws')
 
 //########## add post ##########
 
@@ -10,7 +11,7 @@ const errorFunction = require('../util/errorFunction');
 exports.addPost = (req, res, next) => {
     const content = req.body.content;
     const image = req.file;
-
+    const imageUrl=image.path;
     //##### content inpput validation #####
     if (!content) {
         const error = new Error('Content is not send');
@@ -19,13 +20,7 @@ exports.addPost = (req, res, next) => {
     }
 
     //##### image may be not submitted #####
-    let imageUrl = undefined;
-    if (image) {
-        //new path after resize
-        imageUrl = image.path + '.jpeg';
-        resizeFile(image.path);
-
-    }
+    
 
     const post = new Post({
         creator: req.userId,
@@ -174,11 +169,9 @@ exports.edit = (req, res, next) => {
             //##### resize the image after upload and remove old one #####
             let imageUrl;
             if (image) {
-                imageUrl = image.path + '.jpeg';
-                //new path after resize
-                resizeFile(image.path);
+                imageUrl=image.path;
                 if (post.image) {
-                    deleteFile(post.image);
+                    removeFromAws(post.image);
                 }
             }
 
@@ -220,7 +213,7 @@ exports.delete = (req, res, next) => {
             }
             //##### delete image if image found #####
             if (result.image) {
-                deleteFile(result.image);
+                removeFromAws(result.image);
             }
             //##### delete post from posts #####
             return Post.findByIdAndRemove(postId);

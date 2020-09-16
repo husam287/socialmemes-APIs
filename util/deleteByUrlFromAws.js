@@ -8,6 +8,7 @@ const s3 = new aws.S3({
 
 module.exports=(url)=>{
 
+    if(!url){ return }
     const filename=url.toString().split('.com/')[1];
     console.log(filename);
     const params={

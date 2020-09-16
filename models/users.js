@@ -18,7 +18,7 @@ const userSchema = new Schema({
     }, 
     image: {
         type: String,
-        default: "images/unknown.png",
+        default: "https://socialmemes.s3.eu-central-1.amazonaws.com/unknown.png",
     },
     bio: {
         type: String,

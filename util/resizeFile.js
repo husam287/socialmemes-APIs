@@ -1,16 +1,15 @@
 const sharp = require('sharp');
 const deleteFile=require('./deleteFile');
-const resizeFile = (imageUrl) => {
+const resizeFile = (imageBuffer) => {
 
-    const modImageUrl = imageUrl + '.jpeg';
 
-    sharp(imageUrl)
-        .resize(640, 480)
+    sharp(imageBuffer)
+        .resize(null, 480)
         .jpeg({
             quality: 80,
             chromaSubsampling: '4:4:4'
         })
-        .toFile(modImageUrl, (err, info) => {
+        .toBuffer((err,buffer, info) => {
             if (err) {
                 console.log(err);
                 const error = new Error('Resize image failed');
@@ -18,7 +17,7 @@ const resizeFile = (imageUrl) => {
                 throw error;
             }
             else {
-                deleteFile(imageUrl);
+                return buffer;
             }
         })
 

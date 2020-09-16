@@ -2,8 +2,8 @@ const router=require('express').Router();
 const authController=require('../controllers/auth');
 const {body} = require('express-validator/check');
 const User=require('../models/users');
-
-
+const awsUpload=require('../middlewares/awsUpload');
+const getImageLink=require('../middlewares/getImageLink')
 const isAuth=require('../middlewares/isAuth');
 const isSameUser=require('../middlewares/isSameUser');
 const upload=require('../middlewares/upload');
@@ -42,7 +42,7 @@ router.get('/:userId/get',isAuth,authController.getUserInfo) //{} => {_id,name,e
 
 router.get('/getAll',isAuth,authController.getAllUsers) //{} => [{_id,name,image}]
 
-router.put('/:userId/edit',isAuth,isSameUser,upload("profilePic"),authController.editUser) // {name?,image?,bio?} => {message}
+router.put('/:userId/edit',isAuth,isSameUser,awsUpload,getImageLink,authController.editUser) // {name?,image?,bio?} => {message}
 
 router.put('/:userId/changePassword',[
     body('oldPassword')
