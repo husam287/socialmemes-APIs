@@ -15,6 +15,7 @@ const logStreamFile=fs.createWriteStream(
 );
 
 const compression=require('compression');
+const cors = require('cors');
 
 const app = express();
 
@@ -22,7 +23,7 @@ const authRoutes = require('./routes/auth');
 const postsRoutes = require('./routes/posts');
 const memesRoutes = require('./routes/memes');
 
-console.log([process.env.NODE_ENV])
+app.use(cors());
 app.use(helmet());
 app.use(morgan('combined',{stream:logStreamFile}) );
 app.use(compression());
