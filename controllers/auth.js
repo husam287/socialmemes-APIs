@@ -75,8 +75,8 @@ exports.login = (req, res, next) => {
                 throw error;
             }
             //##### Create the token #####
-            const tokenTimeInHours = 1;
-            const token = jwt.sign({ userId: fetchedUser._id }, 'husam23214895', { expiresIn: tokenTimeInHours.toString() + 'h' });
+            const tokenTimeInHours = 3;
+            const token = jwt.sign({ userId: fetchedUser._id }, process.env.TOKEN_KEY, { expiresIn: tokenTimeInHours.toString() + 'h' });
             const expireDate = new Date().getTime() + tokenTimeInHours * 1000 * 60 * 60;
             res.status(202).json(
                 {
