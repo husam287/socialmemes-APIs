@@ -6,7 +6,9 @@ const awsUpload=require('../middlewares/awsUpload');
 const getImageLink=require('../middlewares/getImageLink')
 const isAuth=require('../middlewares/isAuth');
 const isSameUser=require('../middlewares/isSameUser');
-const upload=require('../middlewares/upload');
+const resizeImage = require('../middlewares/resizeImages')
+
+
 //email,password,name to sign up
 router.post('/signup',[
     //Email validation
@@ -42,7 +44,7 @@ router.get('/:userId/get',isAuth,authController.getUserInfo) //{} => {_id,name,e
 
 router.get('/getAll',isAuth,authController.getAllUsers) //{} => [{_id,name,image}]
 
-router.put('/:userId/edit',isAuth,isSameUser,awsUpload,getImageLink,authController.editUser) // {name?,image?,bio?} => {message}
+router.put('/:userId/edit',isAuth,isSameUser,awsUpload,resizeImage(200),getImageLink,authController.editUser) // {name?,image?,bio?} => {message}
 
 router.put('/:userId/changePassword',[
     body('oldPassword')

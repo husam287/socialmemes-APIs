@@ -1,13 +1,12 @@
 const router = require('express').Router();
 const postsController = require('../controllers/posts');
 const isAuth = require('../middlewares/isAuth');
-const isSameUser = require('../middlewares/isSameUser');
-const upload = require('../middlewares/upload');
 const awsUpload=require('../middlewares/awsUpload');
-const getImageLink=require('../middlewares/getImageLink')
+const getImageLink=require('../middlewares/getImageLink');
+const resizeImages = require('../middlewares/resizeImages');
 
 
-router.post('/add', isAuth, awsUpload,getImageLink, postsController.addPost); // {content:String,image:formData} => {message}
+router.post('/add', isAuth, awsUpload,resizeImages(600),getImageLink, postsController.addPost); // {content:String,image:formData} => {message}
 
 router.get('/getAll', isAuth, postsController.getAll) //{ }=>{[posts]}
 
@@ -26,6 +25,6 @@ router.get('/:userId/getAll', isAuth, postsController.getUserPosts) //{}=>{[user
 
 router.put('/:postId/edit',
     isAuth,
-    awsUpload,getImageLink, postsController.edit) //{content,image}=>{message:Edited successfully }
+    awsUpload,resizeImages(600),getImageLink, postsController.edit) //{content,image}=>{message:Edited successfully }
 
 module.exports = router;

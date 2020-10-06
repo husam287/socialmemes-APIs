@@ -1,6 +1,5 @@
 const Post = require('../models/posts');
 const User = require('../models/users');
-const resizeFile = require('../util/resizeFile');
 const deleteFile = require('../util/deleteFile');
 const errorFunction = require('../util/errorFunction');
 const removeFromAws=require('../util/deleteByUrlFromAws')
@@ -12,6 +11,7 @@ exports.addPost = (req, res, next) => {
     const content = req.body.content;
     const image = req.file;
     const imageUrl= image? image.path:undefined;
+
     //##### content inpput validation #####
     if (!content) {
         const error = new Error('Content is not send');

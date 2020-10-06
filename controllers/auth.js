@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator/check');
 const jwt = require('jsonwebtoken');
 const deleteByUrlFromAms = require('../util/deleteByUrlFromAws');
-const resize = require('../util/resizeFile');
 const toAws = require('../util/toAws');
 
 

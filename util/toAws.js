@@ -1,5 +1,4 @@
 const aws = require('aws-sdk');
-const errorFunction = require('../util/errorFunction');
 const s3 = new aws.S3({
     accessKeyId: process.env.AWS_ID,
     secretAccessKey: process.env.AWS_SECRET,

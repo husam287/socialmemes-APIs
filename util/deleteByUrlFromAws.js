@@ -10,7 +10,6 @@ module.exports=(url)=>{
 
     if(!url){ return }
     const filename=url.toString().split('.com/')[1];
-    console.log(filename);
     const params={
         Bucket:process.env.AWS_BUCKETNAME,
         Key: filename
