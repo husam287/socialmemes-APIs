@@ -224,8 +224,15 @@ exports.delete = (req, res, next) => {
 
         })
         .then(userDoc => {
-            //##### pop back this post from creator own posts #####
-            userDoc.posts.pop(postId);
+            //##### remove this post from creator own posts #####
+            //searching
+            userDoc.posts.forEach(
+                (value,i)=>{
+                    if(value._id.toString()===postId.toString()){
+                        //removing
+                        userDoc.posts.splice(i,1); 
+                    }
+            });
             return userDoc.save();
         })
         .then(result => {
