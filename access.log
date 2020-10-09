@@ -2083,3 +2083,5 @@
 ::1 - - [09/Oct/2020:19:07:23 +0000] "POST /memes/5f808df6bd67f439e071da35/reactAngry HTTP/1.1" 200 621 "-" "PostmanRuntime/7.26.5"
 ::1 - - [09/Oct/2020:19:07:34 +0000] "POST /memes/5f808df6bd67f439e071da35/removeReact HTTP/1.1" 201 401 "-" "PostmanRuntime/7.26.5"
 ::1 - - [09/Oct/2020:19:07:40 +0000] "POST /memes/5f808df6bd67f439e071da35/reactHaha HTTP/1.1" 200 619 "-" "PostmanRuntime/7.26.5"
+::1 - - [09/Oct/2020:19:39:12 +0000] "GET /apimemes/5f808df6bd67f439e071da35/get HTTP/1.1" 404 176 "-" "PostmanRuntime/7.26.5"
+::1 - - [09/Oct/2020:19:39:16 +0000] "GET /api/memes/5f808df6bd67f439e071da35/get HTTP/1.1" 201 567 "-" "PostmanRuntime/7.26.5"

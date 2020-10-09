@@ -45,9 +45,9 @@ app.use((req, res, next) => {
 })
 
 //##### using routes #####
-app.use('/users', authRoutes);
-app.use('/posts',postsRoutes);
-app.use('/memes',memesRoutes);
+app.use('/api/users', authRoutes);
+app.use('/api/posts',postsRoutes);
+app.use('/api/memes',memesRoutes);
 
 
 
