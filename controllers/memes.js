@@ -164,6 +164,8 @@ exports.removeReact = (req,res,next)=>{
 //##### private React Function #####
 const react = (reactType,memeId,req,res,next)=>{
 
+    let isAlreadyReacted=false;
+
     //##### finding the meme #####
     Meme.findById(memeId)
     .then(fetchedMeme=>{
@@ -171,23 +173,36 @@ const react = (reactType,memeId,req,res,next)=>{
         //##### checking if user reacted or not #####
         fetchedMeme.reacts.forEach(value=>{
             if(req.userId.toString()===value.reactOwner.toString()){
-                throw errorFunction("You're already like this post", 400);
+                //already have reacted
+                if(value.reactType===reactType){
+                    throw errorFunction("You've already reacted this post", 400);
+                }
+                else{
+                    // ##### change react type #####
+                    value.reactType=reactType;
+                    isAlreadyReacted=true;
+                    
+                }
             }
         })
 
 
-        //React details
-        const AddedReact = {
-            reactOwner:req.userId,
-            reactType:reactType
+        //##### if only not have never reacted yet #####
+        if(!isAlreadyReacted){
+            //React details
+            const AddedReact = {
+                reactOwner:req.userId,
+                reactType:reactType
+            }
+            //pushing the react to meme's Reacts
+            fetchedMeme.reacts.push(AddedReact);
         }
+        //###############################################
         
-        //pushing the react to meme's Reacts
-        fetchedMeme.reacts.push(AddedReact);
-
         
         //saving the meme
         return fetchedMeme.save()
+
     })
     .then(result=>{
         //populate the saved meme
