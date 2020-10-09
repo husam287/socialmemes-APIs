@@ -10,6 +10,10 @@ const resizeImage = require('../middlewares/resizeImages')
 
 router.post('/add',isAuth,awsUpload,resizeImage(600),getImageLink,memeController.add) //{image:File} => {message:String,meme:Meme}
 
+router.get('/:memeId/get',isAuth,memeController.get) // {}=>{Meme}
+
+router.get('getAll',isAuth,memeController.getAll) // {}=>[Meme]
+
 router.delete('/:memeId/delete',isAuth,memeController.delete) // {}=>{message:string,memes:[Meme]}
 
 router.post('/:memeId/reactLike',isAuth,memeController.reactLike) // {}=>{message:string, meme:Meme}
