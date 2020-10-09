@@ -326,12 +326,14 @@ exports.unlike = (req, res, next) => {
                 return i.toString();
             })
 
-            if (likes.indexOf(req.userId.toString()) < 0) {
+            let i = likes.indexOf(req.userId.toString())
+            if (i<0) {
                 throw errorFunction("you haven't liked this post yet", 400);
             }
 
             //##### edit likes array #####
-            postDoc.likes.pop(req.userId);
+            postDoc.likes.splice(i,1);
+            
             return postDoc.save();
         })
         .then(result => {
