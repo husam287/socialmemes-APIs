@@ -113,20 +113,20 @@ exports.delete = (req,res,next)=>{
 exports.reactLike = (req,res,next)=>{
     const memeId = req.params.memeId;
 
-    react('like',memeId);
+    react('like',memeId,req,res,next);
 }
 
 exports.reactHaha = (req,res,next)=>{
     const memeId = req.params.memeId;
     
-    react('haha',memeId);
+    react('haha',memeId,req,res,next);
 
 }
 
 exports.reactAngry = (req,res,next)=>{
     const memeId = req.params.memeId;
     
-    react('angry',memeId);
+    react('angry',memeId,req,res,next);
 
 }
 
@@ -136,6 +136,9 @@ exports.removeReact = (req,res,next)=>{
     //##### search for the meme #####
     Meme.findById(memeId)
     .then(fetchedMeme=>{
+        //if no meme with this Id
+        if(!fetchedMeme) throw errorFunction('There is no meme with that id',404);
+
         //##### remove userId from react list #####
         fetchedMeme.reacts.forEach((value,i)=>{
             if(value.reactOwner.toString()===req.userId.toString()){
@@ -159,7 +162,7 @@ exports.removeReact = (req,res,next)=>{
 
 
 //##### private React Function #####
-const react = (reactType,memeId)=>{
+const react = (reactType,memeId,req,res,next)=>{
 
     //##### finding the meme #####
     Meme.findById(memeId)

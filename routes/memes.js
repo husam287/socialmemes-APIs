@@ -22,7 +22,7 @@ router.post('/:memeId/reactHaha',isAuth,memeController.reactHaha) // {}=>{messag
 
 router.post('/:memeId/reactAngry',isAuth,memeController.reactAngry) // {}=>{message:string, meme:Meme}
 
-router.post('/:memeId/removeReact',isAuth,memeController.reactAngry) // {}=>{message:string, meme:Meme}
+router.post('/:memeId/removeReact',isAuth,memeController.removeReact) // {}=>{message:string, meme:Meme}
 
 
 
