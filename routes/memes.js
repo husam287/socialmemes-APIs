@@ -12,15 +12,18 @@ router.post('/add',isAuth,awsUpload,resizeImage(600),getImageLink,memeController
 
 router.get('/:memeId/get',isAuth,memeController.get) // {}=>{Meme}
 
-router.get('getAll',isAuth,memeController.getAll) // {}=>[Meme]
+router.get('/getAll',isAuth,memeController.getAll) // {}=>[Meme]
 
-router.delete('/:memeId/delete',isAuth,memeController.delete) // {}=>{message:string,memes:[Meme]}
+router.delete('/:memeId/delete',isAuth,memeController.delete) // {}=>{message:string}
 
 router.post('/:memeId/reactLike',isAuth,memeController.reactLike) // {}=>{message:string, meme:Meme}
 
 router.post('/:memeId/reactHaha',isAuth,memeController.reactHaha) // {}=>{message:string, meme:Meme}
 
-router.post('/:memeId/reactUnlike',isAuth,memeController.reactUnlike) // {}=>{message:string, meme:Meme}
+router.post('/:memeId/reactAngry',isAuth,memeController.reactAngry) // {}=>{message:string, meme:Meme}
+
+router.post('/:memeId/removeReact',isAuth,memeController.reactAngry) // {}=>{message:string, meme:Meme}
+
 
 
 

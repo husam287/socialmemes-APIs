@@ -14,17 +14,24 @@ exports.add = (req,res,next)=>{
         reacts:[]
     })
 
-    let memeId;
+    let memePopulated;
     //##### meme saveing #####
     meme.save()
     .then(savedMeme=>{
-        memeId=savedMeme._id;
+        //populating saved Meme
+        return savedMeme.populate('creator reacts.reactOwner','_id name image').execPopulate()
+    })
+    .then(populatedStuff=>{
+        memePopulated=populatedStuff;
+        //find user by id
         return User.findById(req.userId);
     })
     .then(userDoc=>{
-        userDoc.memes.push(memeId);
-        res.status(201).json({message:'Meme Added Successfully!!',meme:meme});
-    })
+        userDoc.memes.push(memePopulated._id); //pushing the meme to user's memes array
+        //saving
+        userDoc.save()
+        res.status(201).json({message:'Meme Added Successfully!!',meme:memePopulated});
+    })    
     .catch(err=>{
         next(err);
     })
@@ -66,23 +73,128 @@ exports.getAll= (req,res,next)=>{
 }
 
 exports.delete = (req,res,next)=>{
-    // const memeId = req.params.memeId;
+    const memeId = req.params.memeId;
+    let removedMeme;
 
-    // //##### Finding a specific meme and delete it #####
-    // Meme.findByIdAndRemove(memeId)
-    // .then(result=>{
-    //     result
-    // })
+    //##### Checking The Real Owner #####
+    Meme.findById(memeId)
+    .then(result=>{
+        if(result.creator.toString()!==req.userId.toString()){
+            throw errorFunction("You don't have permissions", 403);
+        }
+    })
+    .catch(err=>{
+        next(err);
+    })
+
+
+    //##### Finding a specific meme and delete it #####
+    Meme.findByIdAndRemove(memeId)
+    .then(result=>{
+        removedMeme=result;
+        return User.findById(req.userId)
+    })
+    //##### removing from user's memes array ######
+    .then(userDoc=>{
+        userDoc.memes.forEach((value,i)=>{
+            if(value._id.toString()===removedMeme._id.toString()){
+                userDoc.memes.splice(i,1);
+            }
+        })
+        userDoc.save(); //saving user again
+        removeFromAws(removedMeme.image); //removing the image
+        res.status(200).json({message:'Deleted Successfully!!'}) //sending response
+    })
+    .catch(err=>{
+        next(err)
+    })
 }
 
 exports.reactLike = (req,res,next)=>{
-    
+    const memeId = req.params.memeId;
+
+    react('like',memeId);
 }
 
 exports.reactHaha = (req,res,next)=>{
+    const memeId = req.params.memeId;
     
+    react('haha',memeId);
+
 }
 
-exports.reactUnlike = (req,res,next)=>{
+exports.reactAngry = (req,res,next)=>{
+    const memeId = req.params.memeId;
     
+    react('angry',memeId);
+
+}
+
+exports.removeReact = (req,res,next)=>{
+    const memeId = req.params.memeId;
+    
+    //##### search for the meme #####
+    Meme.findById(memeId)
+    .then(fetchedMeme=>{
+        //##### remove userId from react list #####
+        fetchedMeme.reacts.forEach((value,i)=>{
+            if(value.reactOwner.toString()===req.userId.toString()){
+                fetchedMeme.reacts.splice(i,1);
+            }
+        })
+        
+        return fetchedMeme.save()
+    })
+    //##### populating edited meme #####
+    .then(result=>{
+        return result.populate('creator reacts.reactOwner','_id name image').execPopulate()
+    })
+    .then(result=>{
+        res.status(201).json({message:'Unreacted successfully',meme:result})
+    })
+    .catch(err=>{
+        next(err);
+    })
+}
+
+
+//##### private React Function #####
+const react = (reactType,memeId)=>{
+
+    //##### finding the meme #####
+    Meme.findById(memeId)
+    .then(fetchedMeme=>{
+
+        //##### checking if user reacted or not #####
+        fetchedMeme.reacts.forEach(value=>{
+            if(req.userId.toString()===value.reactOwner.toString()){
+                throw errorFunction("You're already like this post", 400);
+            }
+        })
+
+
+        //React details
+        const AddedReact = {
+            reactOwner:req.userId,
+            reactType:reactType
+        }
+        
+        //pushing the react to meme's Reacts
+        fetchedMeme.reacts.push(AddedReact);
+
+        
+        //saving the meme
+        return fetchedMeme.save()
+    })
+    .then(result=>{
+        //populate the saved meme
+        return result.populate('creator reacts.reactOwner','_id name image').execPopulate()
+    })
+    .then(result=>{
+        //sending response
+        res.status(200).json({message:'You Reacted '+reactType+" to this Meme.",meme:result})
+    })
+    .catch(err=>{
+        next(err);
+    })
 }
