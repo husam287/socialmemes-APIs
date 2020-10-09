@@ -6,30 +6,36 @@ const mongoose = require('mongoose');
 const path = require('path');
 const fs=require('fs');
 
+//##### Performance Packages and logs creators #####
 const helmet = require('helmet');
-
 const morgan = require('morgan');
 const logStreamFile=fs.createWriteStream(
   path.join(__dirname,'access.log'),
   {flags:'a'}
 );
-
 const compression=require('compression');
 
+
+//##### main express function #####
 const app = express();
 
+//##### importing Routes #####
 const authRoutes = require('./routes/auth');
 const postsRoutes = require('./routes/posts');
 const memesRoutes = require('./routes/memes');
 
+// ##### uses of performance packages #####
 app.use(helmet());
 app.use(morgan('combined',{stream:logStreamFile}) );
 app.use(compression());
 
+//##### body parser #####
 app.use(bodyParser.json());
+
+//##### making images puplic #####
 app.use('/images',express.static(path.join(__dirname, 'images')));
 
-
+//##### allowing required header #####
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST,GET,PUT,PATCH,DELETE');
@@ -38,13 +44,10 @@ app.use((req, res, next) => {
 
 })
 
-
+//##### using routes #####
 app.use('/users', authRoutes);
-
 app.use('/posts',postsRoutes);
-
-
-// app.use('memes',memesRoutes);
+app.use('/memes',memesRoutes);
 
 
 
@@ -60,7 +63,6 @@ app.use((error, req, res, next) => {
 
 
 //################# Db connect #################
-
 mongoose
   .connect(
     _DB_URL

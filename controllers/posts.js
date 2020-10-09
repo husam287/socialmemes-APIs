@@ -1,6 +1,5 @@
 const Post = require('../models/posts');
 const User = require('../models/users');
-const deleteFile = require('../util/deleteFile');
 const errorFunction = require('../util/errorFunction');
 const removeFromAws=require('../util/deleteByUrlFromAws')
 
